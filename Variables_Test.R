@@ -1,14 +1,14 @@
 source("MainFunctions.R")
 
 set.seed(base_seed)
-base_test <- "base"
+base_test <- "test"
 
 
 .GlobalEnv$U = rGausCop(pop_size, Sig)
 
 #Gender (1 = Female, 2 = Male)
 group_up_bound <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-bad_ratio <- c(1, 4, 0, 0, 0, 0, 0, 0, 0, 0)
+bad_ratio <- c(1, 3, 0, 0, 0, 0, 0, 0, 0, 0)
 sample_var = rDiscU(U[, 1], prob = c(0.6, 0.4))
 assign(
   paste(base_test, "_Gender", sep = ""),
@@ -19,7 +19,7 @@ assign(
 
 #Existing Customer (0 = Yes, 1 = No)
 group_up_bound <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-bad_ratio <- c(1, 3.5, 0, 0, 0, 0, 0, 0, 0, 0)
+bad_ratio <- c(1, 2.7, 0, 0, 0, 0, 0, 0, 0, 0)
 sample_var = rDiscU(U[, 2], prob = c(0.8, 0.2), arg = group_up_bound)
 assign(
   paste(base_test, "_ExistCust", sep = ""),
@@ -30,7 +30,7 @@ assign(
 
 #Number of Enquiries (0,1,2,3,4,5+)
 group_up_bound <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-bad_ratio <- c(1, 1.6, 2.5, 3, 5, 7, 0, 0, 0, 0)
+bad_ratio <- c(1, 1.3, 1.8, 1.9, 2.1, 2.7, 0, 0, 0, 0)
 sample_var = rDiscU(U[, 2],
                     prob = c(0.3, 0.25, 0.2, 0.15, 0.05, 0.05),
                     arg = group_up_bound)
@@ -44,7 +44,7 @@ assign(
 
 #Age (18 - 75)
 group_up_bound <- c(18, 21, 25, 30, 45, 57, 63, 75, 76, 100)
-bad_ratio <- c(1, 0.8, 0.7, 0.5, 0.4, 0.4 , 0.3, 0, 0, 0)
+bad_ratio <- c(1, 0.85, 0.78, 0.66, 0.5, 0.43 , 0.31, 0, 0, 0)
 sample_var = runif(pop_size, 18, 75)
 assign(
   paste(base_test, "_Age", sep = ""),

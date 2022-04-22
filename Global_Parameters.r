@@ -4,7 +4,7 @@
 #source("MainFunctions.R")
 
 #Dataset Setup
-.GlobalEnv$pop_size <- 4000
+.GlobalEnv$pop_size <- 10000
 .GlobalEnv$bad_rate_total = 0.10
 .GlobalEnv$class_size = 10
 .GlobalEnv$base_seed = 1234

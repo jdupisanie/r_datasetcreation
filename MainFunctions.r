@@ -265,13 +265,24 @@ create_model_set <- function(base_test) {
   
   x_final_dataset = eval(parse(text = paste(base_test, "_final_dataset", sep =
                                               "")))
-  assign(as.character(x_model_dataset),
-         data.frame(y_hat = x_final_dataset[["y_hat"]]),
-         envir = .GlobalEnv)
-  
   assign(as.character(x_distr_dataset),
          data.frame(group_num <- c(1:10)),
          envir = .GlobalEnv)
+  if (base_test == "base") {
+    assign(as.character(x_model_dataset),
+           data.frame(y_hat = x_final_dataset[["y_hat"]],overall_bad_ind = x_final_dataset[["overall_bad_ind"]]),
+           envir = .GlobalEnv)
+    
+  }
+  
+  if (base_test == "test") {
+    assign(as.character(x_model_dataset),
+           data.frame(c(pop_size)),
+           envir = .GlobalEnv)
+   
+  }
+  
+  
   m <- 1
   while (m <= 10) {
     var_table <-
@@ -299,20 +310,48 @@ create_model_set <- function(base_test) {
     good_distr = (total_act - bad_act) / (pop_size - sum(bad_act))
     bad_distr = bad_act / sum(bad_act)
     total_distr = total_act / sum(total_act)
-    woe_v = log(good_distr / bad_distr)
-    woe <- rep(0, pop_size)
     
-    i <- 0
-    while (i < 10) {
-      j <- 1
-      while (j <= pop_size) {
-        if (isTRUE(groupings[j] == i)) {
-          woe[j] <- woe_v[i]
+    if (base_test == "base") {
+      woe_v = log(good_distr / bad_distr)
+      woe_v[woe_v > 10] <- 10
+      woe <- rep(0, pop_size)
+      
+      i <- 0
+      while (i < 10) {
+        j <- 1
+        while (j <= pop_size) {
+          if (isTRUE(groupings[j] == i)) {
+            woe[j] <- woe_v[i]
+          }
+          j = j + 1
         }
-        j = j + 1
+        i = i + 1
       }
-      i = i + 1
     }
+    
+    if (base_test == "test") {
+      var_name_woe <- paste(var_list[m], "_woe", sep = "")
+      var_name_groupings <-
+        paste(var_list[m], "_groupings", sep = "")
+      woe_v <-
+        unique(base_model_dataset[c(var_name_groupings, var_name_woe)])
+      woe <- rep(0, pop_size)
+      
+      i <- 0
+      while (i < 10) {
+        j <- 1
+        while (j <= pop_size) {
+          if (isTRUE(groupings[j] == woe_v[i, 1])) {
+            woe[j] <- woe_v[i, 2]
+          }
+          j = j + 1
+        }
+        i = i + 1
+      }
+      
+    }
+    
+    
     
     temp_woe_group <- data.frame(woe, groupings)
     names(temp_woe_group)[1] <- paste(var_name, "_woe", sep = "")
@@ -320,13 +359,12 @@ create_model_set <- function(base_test) {
       paste(var_name, "_groupings", sep = "")
     
     assign(as.character(x_model_dataset),
-           data.frame(eval(as.name(
-             x_model_dataset
-           )), temp_woe_group),
+           data.frame(eval(as.name(x_model_dataset)), temp_woe_group),
            envir = .GlobalEnv)
     
     
-    temp_distr_group <- data.frame(total_distr, good_distr, bad_distr)
+    temp_distr_group <-
+      data.frame(total_distr, good_distr, bad_distr)
     names(temp_distr_group)[1] <-
       paste(var_name, "_distr_total", sep = "")
     names(temp_distr_group)[2] <-
@@ -335,9 +373,7 @@ create_model_set <- function(base_test) {
       paste(var_name, "_distr_bad", sep = "")
     
     assign(as.character(x_distr_dataset),
-           data.frame(eval(as.name(
-             x_distr_dataset
-           )), temp_distr_group),
+           data.frame(eval(as.name(x_distr_dataset)), temp_distr_group),
            envir = .GlobalEnv)
     
     m = m + 1
@@ -443,52 +479,31 @@ create_test_set <- function(base_test) {
 create_model <- function(base_test) {
   x_model_dataset = eval(parse(text = paste(base_test, "_model_dataset", sep = "")))
   
-  model <- glm(
-    x_model_dataset$y_hat ~
-      +eval(parse(text = paste(
-        var_list[1], "_woe", sep = ""
-      )))
-    + eval(parse(text = paste(
-      var_list[2], "_woe", sep = ""
-    )))
-    + eval(parse(text = paste(
-      var_list[3], "_woe", sep = ""
-    )))
-    + eval(parse(text = paste(
-      var_list[4], "_woe", sep = ""
-    )))
-    + eval(parse(text = paste(
-      var_list[5], "_woe", sep = ""
-    )))
-    + eval(parse(text = paste(
-      var_list[6], "_woe", sep = ""
-    )))
-    + eval(parse(text = paste(
-      var_list[7], "_woe", sep = ""
-    )))
-    + eval(parse(text = paste(
-      var_list[8], "_woe", sep = ""
-    )))
-    + eval(parse(text = paste(
-      var_list[9], "_woe", sep = ""
-    )))
-    + eval(parse(text = paste(
-      var_list[10], "_woe", sep = ""
-    )))
+  model <- glm(x_model_dataset$y_hat ~
+               +factor(eval(parse(text = paste(var_list[1], "_woe", sep = ""))))
+               +eval(parse(text = paste(var_list[2], "_woe", sep = "")))
+               +eval(parse(text = paste(var_list[3], "_woe", sep = "")))
+               +factor(eval(parse(text = paste(var_list[4], "_woe", sep = ""))))
+               +eval(parse(text = paste(var_list[5], "_woe", sep = "")))
+               +eval(parse(text = paste(var_list[6], "_woe", sep = "")))
+               +factor(eval(parse(text = paste(var_list[7], "_woe", sep = ""))))
+               +factor(eval(parse(text = paste(var_list[8], "_woe", sep = ""))))
+               +eval(parse(text = paste(var_list[9], "_woe", sep = "")))
+               +eval(parse(text = paste(var_list[10], "_woe", sep = "")))
+               
     ,
     data = x_model_dataset,
     family = binomial(link = "logit")
   )
   model_summary <- summary(model)
-  #Factor function for province
-  
+
   probabilities <-  predict(model, type = "response")
-  optCutOff <- optimalCutoff(x_model_dataset$y_hat, probabilities)[1]
+  optCutOff <- optimalCutoff(x_model_dataset$y_hat, probabilities)#[1]
   predicted <- ifelse(probabilities > optCutOff, 1, 0)
   
   ROCRpred <- prediction(predicted, x_model_dataset$y_hat)
   ROCRperf <- performance(ROCRpred, 'tpr', 'fpr')
-  # plot(ROCRperf,
+  plot(ROCRperf)
   #      colorize = TRUE,
   #      text.adj = c(-0.2, 1.7))
   output_table <- table(predicted, x_model_dataset$y_hat)
@@ -507,7 +522,7 @@ create_model <- function(base_test) {
   }
   
   
-  model_output <-
+  .GlobalEnv$model_output <-
     list(
       model,
       model_summary,
@@ -532,8 +547,8 @@ apply_model <- function() {
                                                                                                    1])) / pop_size
     k = k + 1
   }
-  output_table <-
-    table(predicted, test_model_dataset$overall_bad_ind)
+  #output_table <- table(predicted, test_model_dataset$overall_bad_ind)
+  output_table <- data.frame(predicted, test_model_dataset)
   
   output_list <- list(probabilities, predicted, pd_v, output_table)
   
@@ -686,11 +701,13 @@ variable_creator = function(seed,base_test_select,variables_select){
   .GlobalEnv$base_seed=seed
   source(variables_select)
   add_var_to_set(base_test = base_test_select)
-  get_pred_outcome()
+  if(base_test_select == "base"){
+    get_pred_outcome()
+  }
   create_model_set(base_test_select)
 }
 
-variable_average <- function(data_set){
+variable_average <- function(data_set, all_Variable){
   
   if (exists("total_attr_view")){}  else{.GlobalEnv$total_attr_view <- data.frame()}
   
