@@ -1,0 +1,12 @@
+Scenario 4
+
+Large shift in the Gender and Number of Enquiries attribute. Both had 40% shift.
+
+Gender:
+  From: prob = c(0.6, 0.4))
+  To:   prob = c(0.2, 0.8)
+
+
+Number of Enquiries:
+  From: prob = c(0.3, 0.25, 0.20, 0.15, 0.05, 0.05)
+  To:   prob = c(0.7, 0.10, 0.05, 0.05, 0.05, 0.05)

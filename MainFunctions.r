@@ -651,6 +651,8 @@ run_comparisons_grouped <- function() {
   base_pd_distr <- model_base[[8]]
   test_pd_distr <- model_test[[3]]
   
+  t1<-0
+  t2<-0
   j <- 1
   while (j <= 10) {
     psi_v[11]  = psi_v[11] +
@@ -662,13 +664,19 @@ run_comparisons_grouped <- function() {
       dpv_v[11]
     )
     overlap_v[11] = overlap_v[11] + min(base_pd_distr[j], test_pd_distr[j])
+    
+    t1 = t1 + ifelse(test_pd_distr[j] == 0, 0, (test_pd_distr[j] - mean(base_pd_distr)) ^
+                       2)
+    t2 = t2 + ifelse(base_pd_distr[j] == 0, 0, (base_pd_distr[j] - mean(base_pd_distr)) ^
+                       2)
+    
     j = j + 1
   }
   
   
   dp_index_v[11] = sum(dp_index_v)
   dp_index_v2[11] = sum(dp_index_v2[1:10])
-  
+  taplinhunt_v[11] = 0.5 * (1 + t1 / t2)
   #ks_v[11] = ks.test(base_distr[11],test_distr[11])
   
   
