@@ -682,9 +682,10 @@ run_comparisons_grouped <- function() {
   dp_index_v <- round(dp_index_v, digits = 4)
   dp_index_v2 <- round(dp_index_v2, digits = 8)
   
+  Attribute_Name <-c(as.vector(unlist(var_list)), "PD_groups")
+  
   all_comparisons <-
-    data.frame(
-      c(as.vector(unlist(var_list)), "PD_groups"),
+    data.frame(Attribute_Name,
       psi_v,
       dpv_v,
       taplinhunt_v,
@@ -747,4 +748,16 @@ variable_average <- function(data_set, all_Variable){
   else{.GlobalEnv$total_attr_view<-total_attr_temp}
   
   #return(total_attr_temp)
+}
+
+print_averages <-function(){
+  cat("Model Base PD:",round(mean(model_base[[3]]),digits=4 ) ,"\n",sep=" ")
+  cat("Model Test PD:",round(mean(model_test[[1]]),digits=4),sep=" ")
+}
+
+combine_psi<-function(){
+  cm_transp_psi_temp <- as.data.frame(t(comp_matrix$psi_v))
+  colnames(cm_transp_psi_temp) <- comp_matrix$Attribute_Name
+  if(exists("cm_transp_psi")){.GlobalEnv$cm_transp_psi<-bind_rows(.GlobalEnv$cm_transp_psi,cm_transp_psi_temp)}
+  else{.GlobalEnv$cm_transp_psi<-cm_transp_psi_temp}
 }
